@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Garrage  App</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_programare">Programare</string>
+
+    <string-array name="motorizare_list">
+        <item>Benzina</item>
+        <item>Diesel</item>
+        <item>Benzina &amp; Diesel</item>
+    </string-array>
+</resources>
