@@ -54,9 +54,9 @@ public class Programare extends AppCompatActivity {
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(Programare.this);
                 View mView = getLayoutInflater().inflate(R.layout.dialog_addcar, null);
 
-                final EditText mModel = (EditText) mView.findViewById(R.id.modelContent);
-                final Spinner mMotorizare = (Spinner) mView.findViewById(R.id.motorizareContent);
-                Button mAdauga = (Button) mView.findViewById(R.id.butonAdauga);
+                final EditText mModel = (EditText) mView.findViewById(R.id.car_modelContent);
+                final Spinner mMotorizare = (Spinner) mView.findViewById(R.id.car_motorizareContent);
+                Button mAdauga = (Button) mView.findViewById(R.id.button_add_car);
 
                 mBuilder.setView(mView);
                 final AlertDialog dialog = mBuilder.create();
@@ -66,16 +66,24 @@ public class Programare extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         if (!mModel.getText().toString().isEmpty()) {
-                            Button myButton = new Button(Programare.this);
-                            myButton.setText(mModel.getText().toString());
-
-                            LinearLayout mLinearLayout = (LinearLayout) findViewById(R.id.viewCarModel);
-                            LinearLayout.LayoutParams mLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                            mLinearLayout.addView(myButton, mLayoutParams);
-
-                            databaseOperations.writeNewModel(mModel.getText().toString(),mMotorizare.getSelectedItem().toString());
-
+//                            Button myButton = new Button(Programare.this);
+//                            myButton.setText(mModel.getText().toString());
+//
+//                            LinearLayout mLinearLayout = (LinearLayout) findViewById(R.id.viewCarModel);
+//                            LinearLayout.LayoutParams mLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+//                            mLinearLayout.addView(myButton, mLayoutParams);
+//
+//                            databaseOperations.writeNewModel(mModel.getText().toString(),mMotorizare.getSelectedItem().toString());
                             dialog.dismiss();
+
+                            AlertDialog.Builder mBuilder = new AlertDialog.Builder(Programare.this);
+                            View mView = getLayoutInflater().inflate(R.layout.dialog_addoperation, null);
+
+                            mBuilder.setView(mView);
+                            final AlertDialog dialog = mBuilder.create();
+                            dialog.show();
+
+
                         } else {
                             Toast.makeText(Programare.this,
                                     "Completati toate campurile.",
