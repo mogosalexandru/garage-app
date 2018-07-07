@@ -2,11 +2,13 @@ package ro.arfin.garrageapp;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,8 +19,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.content.Intent;
+import android.widget.CalendarView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import ro.arfin.garrageapp.Database.CarModelObject;
 import ro.arfin.garrageapp.Database.DatabaseOperations;
@@ -28,6 +39,15 @@ public class MainActivity extends AppCompatActivity
 
     private DatabaseOperations databaseOperations = new DatabaseOperations();
     private ArrayList<CarModelObject> modelContent = databaseOperations.getModelList();
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private ImageView previousDay;
+    private ImageView nextDay;
+    private TextView currentDate;
+    private Calendar cal = Calendar.getInstance();
+    //private DatabaseQuery mQuery;
+    private RelativeLayout mLayout;
+    private int eventIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +63,28 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
+                View mView = getLayoutInflater().inflate(R.layout.calendar_view, null);
+
+                mBuilder.setView(mView);
+                final AlertDialog dialog = mBuilder.create();
+                dialog.show();
+
+                CalendarView calendar = (CalendarView) mView.findViewById(R.id.calendarView);
+                calendar.setDate(cal.getTimeInMillis());
+
+                calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+
+                    @Override
+                    public void onSelectedDayChange(CalendarView view, int year, int month,
+                                                    int dayOfMonth) {
+                    cal.set(year, month, dayOfMonth);
+                        currentDate.setText(displayDateInString(cal.getTime()));
+                        dialog.dismiss();
+
+                    }
+                });
+
             }
         });
 
@@ -56,16 +96,37 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // mQuery = new DatabaseQuery(this);
+        mLayout = (RelativeLayout) findViewById(R.id.left_event_column);
+        eventIndex = mLayout.getChildCount();
+        currentDate = (TextView) findViewById(R.id.display_current_date);
+        currentDate.setText(displayDateInString(cal.getTime()));
+//        displayDailyEvents();
+        previousDay = (ImageView) findViewById(R.id.previous_day);
+        nextDay = (ImageView) findViewById(R.id.next_day);
+
+        previousDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                previousCalendarDate();
+            }
+        });
+        nextDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nextCalendarDate();
+            }
+        });
+
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     @Override
@@ -142,5 +203,75 @@ public class MainActivity extends AppCompatActivity
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String displayDateInString(Date mDate) {
+        SimpleDateFormat formatter = new SimpleDateFormat("d MMMM, yyyy", Locale.getDefault());
+        return formatter.format(mDate);
+    }
+
+    private void previousCalendarDate() {
+        //mLayout.removeViewAt(eventIndex - 1);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        currentDate.setText(displayDateInString(cal.getTime()));
+        //displayDailyEvents();
+    }
+
+    private void nextCalendarDate() {
+        //mLayout.removeViewAt(eventIndex - 1);
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        currentDate.setText(displayDateInString(cal.getTime()));
+        //displayDailyEvents();
+    }
+
+//    private void displayDailyEvents(){
+//        Date calendarDate = cal.getTime();
+//        List<EventObjects> dailyEvent = mQuery.getAllFutureEvents(calendarDate);
+//        for(EventObjects eObject : dailyEvent){
+//            Date eventDate = eObject.getDate();
+//            Date endDate = eObject.getEnd();
+//            String eventMessage = eObject.getMessage();
+//            int eventBlockHeight = getEventTimeFrame(eventDate, endDate);
+//            Log.d(TAG, "Height " + eventBlockHeight);
+//            displayEventSection(eventDate, eventBlockHeight, eventMessage);
+//        }
+//    }
+
+    private int getEventTimeFrame(Date start, Date end) {
+        long timeDifference = end.getTime() - start.getTime();
+        Calendar mCal = Calendar.getInstance();
+        mCal.setTimeInMillis(timeDifference);
+        int hours = mCal.get(Calendar.HOUR);
+        int minutes = mCal.get(Calendar.MINUTE);
+        return (hours * 60) + ((minutes * 60) / 100);
+    }
+
+    private void displayEventSection(Date eventDate, int height, String message) {
+        SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+        String displayValue = timeFormatter.format(eventDate);
+        String[] hourMinutes = displayValue.split(":");
+        int hours = Integer.parseInt(hourMinutes[0]);
+        int minutes = Integer.parseInt(hourMinutes[1]);
+        Log.d(TAG, "Hour value " + hours);
+        Log.d(TAG, "Minutes value " + minutes);
+        int topViewMargin = (hours * 60) + ((minutes * 60) / 100);
+        Log.d(TAG, "Margin top " + topViewMargin);
+        createEventView(topViewMargin, height, message);
+    }
+
+    private void createEventView(int topMargin, int height, String message) {
+        TextView mEventView = new TextView(MainActivity.this);
+        RelativeLayout.LayoutParams lParam = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lParam.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        lParam.topMargin = topMargin * 2;
+        lParam.leftMargin = 24;
+        mEventView.setLayoutParams(lParam);
+        mEventView.setPadding(24, 0, 24, 0);
+        mEventView.setHeight(height * 2);
+        mEventView.setGravity(0x11);
+        mEventView.setTextColor(Color.parseColor("#ffffff"));
+        mEventView.setText(message);
+        mEventView.setBackgroundColor(Color.parseColor("#3F51B5"));
+        mLayout.addView(mEventView, eventIndex - 1);
     }
 }

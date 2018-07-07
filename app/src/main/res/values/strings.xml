@@ -11,6 +11,16 @@
     <string-array name="motorizare_list">
         <item>Benzina</item>
         <item>Diesel</item>
-        <item>Benzina &amp; Diesel</item>
     </string-array>
+
+    <string name="time_9">9</string>
+    <string name="time_10">10</string>
+    <string name="time_11">11</string>
+    <string name="time_12">12</string>
+    <string name="time_13">13</string>
+    <string name="time_14">14</string>
+    <string name="time_15">15</string>
+    <string name="time_16">16</string>
+    <string name="time_17">17</string>
+    <string name="current_day_date">8 October, 2016</string>
 </resources>

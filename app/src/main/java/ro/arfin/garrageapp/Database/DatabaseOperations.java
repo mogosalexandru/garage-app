@@ -54,8 +54,8 @@ public class DatabaseOperations implements Serializable {
 
                                 for (Map.Entry<String, String> operationsEntry : ((Map<String, String>) operationsContent).entrySet()) {
                                     String operationName = operationsEntry.getKey();
-                                    String operationTime = operationsEntry.getValue();
-                                    m_modelOperations.add(new OperationByEngine(engineName, operationName, operationTime));
+                                    //String operationTime = operationsEntry.getValue();
+                                    m_modelOperations.add(new OperationByEngine(engineName, operationName, "operationTime"));
                                 }
                             }
                             m_modelList.add(new CarModelObject(modelName, m_modelOperations));
@@ -70,17 +70,10 @@ public class DatabaseOperations implements Serializable {
                 });
     }
 
-    public void writeNewModel(String model, String motorizare) {
+    public void writeNewModel(String model, String motorizare, String numeOperatie, String opOra, String opMin) {
         DatabaseReference ref = m_database.child("operatiuni");
 
-        System.out.println("motorizare: " + motorizare);
-
-        if (motorizare.equals("Benzina & Diesel")) {
-            ref.child(model).setValue("Benzina");
-            ref.child(model).setValue("Diesel");
-            return;
-        }
-
-        ref.child(model).child(motorizare).child("operatiune_nume").setValue("test");
+        ref.child(model).setValue(motorizare);
+        ref.child(model).child(motorizare).child(numeOperatie).child("durata").setValue(opOra+"/"+opMin);
     }
 }

@@ -30,6 +30,8 @@ public class Programare extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        ArrayList<CarModelObject> modelContent = databaseOperations.getModelList();
+
         modelContent = (ArrayList<CarModelObject>) getIntent().getSerializableExtra("modelContent");
 
         for (int i = 0; i < modelContent.size(); i++) {
@@ -66,32 +68,57 @@ public class Programare extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         if (!mModel.getText().toString().isEmpty()) {
-//                            Button myButton = new Button(Programare.this);
-//                            myButton.setText(mModel.getText().toString());
-//
-//                            LinearLayout mLinearLayout = (LinearLayout) findViewById(R.id.viewCarModel);
-//                            LinearLayout.LayoutParams mLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-//                            mLinearLayout.addView(myButton, mLayoutParams);
-//
-//                            databaseOperations.writeNewModel(mModel.getText().toString(),mMotorizare.getSelectedItem().toString());
+
                             dialog.dismiss();
 
                             AlertDialog.Builder mBuilder = new AlertDialog.Builder(Programare.this);
-                            View mView = getLayoutInflater().inflate(R.layout.dialog_addoperation, null);
+                            View mOperationView = getLayoutInflater().inflate(R.layout.dialog_addoperation, null);
+                            final EditText mOperationName = (EditText) mOperationView.findViewById(R.id.operation_nameContent);
+                            final EditText mOperationOra = (EditText) mOperationView.findViewById(R.id.operation_ora);
+                            final EditText mOperationMin = (EditText) mOperationView.findViewById(R.id.operation_min);
 
-                            mBuilder.setView(mView);
+                            mBuilder.setView(mOperationView);
                             final AlertDialog dialog = mBuilder.create();
                             dialog.show();
 
+                            Button mAddOperation = (Button) mOperationView.findViewById(R.id.button_add_operation);
+                            mAddOperation.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view)
+                                {
 
-                        } else {
-                            Toast.makeText(Programare.this,
-                                    "Completati toate campurile.",
-                                    Toast.LENGTH_SHORT).show();
+                                    if (mOperationName.getText().toString().isEmpty()
+                                            || mOperationOra.getText().toString().isEmpty()
+                                            || mOperationMin.getText().toString().isEmpty()) {
+                                        Toast.makeText(Programare.this,
+                                                "Completati toate campurile.",
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Button myButton = new Button(Programare.this);
+                                        myButton.setText(mModel.getText().toString());
+
+                                        LinearLayout mLinearLayout = (LinearLayout) findViewById(R.id.viewCarModel);
+                                        LinearLayout.LayoutParams mLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                        mLinearLayout.addView(myButton, mLayoutParams);
+
+                                        databaseOperations.writeNewModel(mModel.getText().toString()
+                                                , mMotorizare.getSelectedItem().toString()
+                                                , mOperationName.getText().toString()
+                                                , mOperationOra.getText().toString()
+                                                , mOperationMin.getText().toString());
+
+                                        Toast.makeText(Programare.this,
+                                                "Succes.",
+                                                Toast.LENGTH_SHORT).show();
+
+                                        dialog.dismiss();
+
+                                        //finish();
+                                        //startActivity(getIntent());
+                                    }
+                                }
+                            });
                         }
-                        Toast.makeText(Programare.this,
-                                "Succes.",
-                                Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -132,11 +159,56 @@ public class Programare extends AppCompatActivity {
         });
     }
 
-        @Override
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        modelContent = (ArrayList<CarModelObject>) getIntent().getSerializableExtra("modelContent");
+//
+//        for (int i = 0; i < modelContent.size(); i++) {
+//            Button myButton = new Button(Programare.this);
+//
+//            myButton.setText(modelContent.get(i).getModelName().toString());
+//
+//            System.out.println(modelContent.get(i).getModelName().toString());
+//
+//            LinearLayout mLinearLayout = (LinearLayout) findViewById(R.id.viewCarModel);
+//            LinearLayout.LayoutParams mLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+//            mLinearLayout.addView(myButton, mLayoutParams);
+//        }
+//    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
         startActivityForResult(myIntent, 0);
         return true;
 
+    }
+
+    private void refreshContent()
+    {
+        modelContent = (ArrayList<CarModelObject>) getIntent().getSerializableExtra("modelContent");
+
+        for (int i = 0; i < modelContent.size(); i++) {
+            Button myButton = new Button(Programare.this);
+
+            myButton.setText(modelContent.get(i).getModelName().toString());
+
+            System.out.println(modelContent.get(i).getModelName().toString());
+
+            LinearLayout mLinearLayout = (LinearLayout) findViewById(R.id.viewCarModel);
+            LinearLayout.LayoutParams mLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            mLinearLayout.addView(myButton, mLayoutParams);
+        }
+
+        finish();
+        startActivity(getIntent());
+    }
+
+    @Override
+    public void onBackPressed(){
+        Intent intent = new Intent(Programare.this, MainActivity.class);
+        startActivity(intent);
     }
 }
