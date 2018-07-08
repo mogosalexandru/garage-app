@@ -25,6 +25,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity
     private Calendar cal = Calendar.getInstance();
     //private DatabaseQuery mQuery;
     private RelativeLayout mLayout;
-    private int eventIndex;
+    private Integer eventIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +80,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onSelectedDayChange(CalendarView view, int year, int month,
                                                     int dayOfMonth) {
-                    cal.set(year, month, dayOfMonth);
+                        cal.set(year, month, dayOfMonth);
                         currentDate.setText(displayDateInString(cal.getTime()));
                         dialog.dismiss();
 
@@ -100,9 +102,10 @@ public class MainActivity extends AppCompatActivity
         // mQuery = new DatabaseQuery(this);
         mLayout = (RelativeLayout) findViewById(R.id.left_event_column);
         eventIndex = mLayout.getChildCount();
+        // eventIndex = 9;
         currentDate = (TextView) findViewById(R.id.display_current_date);
         currentDate.setText(displayDateInString(cal.getTime()));
-//        displayDailyEvents();
+      //  displayDailyEvents();
         previousDay = (ImageView) findViewById(R.id.previous_day);
         nextDay = (ImageView) findViewById(R.id.next_day);
 
@@ -211,20 +214,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void previousCalendarDate() {
-        //mLayout.removeViewAt(eventIndex - 1);
+      //  mLayout.removeViewAt(eventIndex - 1);
         cal.add(Calendar.DAY_OF_MONTH, -1);
         currentDate.setText(displayDateInString(cal.getTime()));
-        //displayDailyEvents();
+       // displayDailyEvents();
     }
 
     private void nextCalendarDate() {
-        //mLayout.removeViewAt(eventIndex - 1);
+      //  mLayout.removeViewAt(eventIndex - 1);
         cal.add(Calendar.DAY_OF_MONTH, 1);
         currentDate.setText(displayDateInString(cal.getTime()));
-        //displayDailyEvents();
+      //  displayDailyEvents();
     }
 
-//    private void displayDailyEvents(){
+    private void displayDailyEvents() {
 //        Date calendarDate = cal.getTime();
 //        List<EventObjects> dailyEvent = mQuery.getAllFutureEvents(calendarDate);
 //        for(EventObjects eObject : dailyEvent){
@@ -235,7 +238,36 @@ public class MainActivity extends AppCompatActivity
 //            Log.d(TAG, "Height " + eventBlockHeight);
 //            displayEventSection(eventDate, eventBlockHeight, eventMessage);
 //        }
-//    }
+        Date calendarDate = cal.getTime();
+
+        DateFormat format = new SimpleDateFormat("d-MM-yyyy HH:mm", Locale.ENGLISH);
+        System.out.println("AN " + calendarDate.getYear() + ":" + calendarDate.getMonth() + ":" + calendarDate.getDay());
+
+        if (calendarDate.getYear() == 118 && calendarDate.getDay() == 0 && calendarDate.getMonth() == 6) {
+
+            Date eventDate = null;
+            try {
+                eventDate = format.parse("8-07-2018 11:30");
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            Date endDate = null;
+            try {
+                endDate = format.parse("8-07-2018 12:15");
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            String eventMessage = "Rezervare de proba.";
+
+            EventObjects event = new EventObjects(eventMessage, eventDate, endDate);
+
+
+            int eventBlockHeight = getEventTimeFrame(event.getDate(), event.getEnd());
+            Log.d(TAG, "Height " + eventBlockHeight);
+            displayEventSection(event.getDate(), eventBlockHeight, event.getMessage());
+        }
+    }
 
     private int getEventTimeFrame(Date start, Date end) {
         long timeDifference = end.getTime() - start.getTime();
